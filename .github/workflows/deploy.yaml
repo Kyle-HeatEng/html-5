@@ -4,7 +4,7 @@ name: deploy main
 on: 
   push:
     branches:
-    - master
+    - testing-workflow
 
 # Define jobs to be run.
 jobs:
