@@ -30,15 +30,10 @@ jobs:
         path: dist
         key: cache-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-dist
 
-    - name: Navigate to the server directory
-      run: ls -la
-
     - name: Install NPM dependencies
-      run: npm ci
-
-    # Add a step to build your application, if applicable.
-    - name: Build the application
-      run: npm run build
+      run: |
+        cd server
+        npm ci
 
   deploy:
     if: "! github.event.pull_request.draft"
