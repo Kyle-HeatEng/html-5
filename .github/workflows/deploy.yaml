@@ -31,7 +31,7 @@ jobs:
         key: cache-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-dist
 
     - name: Navigate to the server directory
-      run: cd server
+      run: ls -la
 
     - name: Install NPM dependencies
       run: npm ci
