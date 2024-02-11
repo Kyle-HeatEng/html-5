@@ -16,7 +16,7 @@ export default function Splash() {
   return (
     <main className="flex flex-col justify-center items-center gap-4 p-12">
       <h1 className="text-4xl font-bold"> GEOWARS </h1>
-      <div>
+      <div className="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
         {messages.map((message, i) => (
           <div key={i}>{message}</div>
         ))}
