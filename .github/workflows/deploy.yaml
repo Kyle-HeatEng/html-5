@@ -30,7 +30,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: server
-        key: cache-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-dist
+        key: cache-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-server
 
     - name: Install NPM dependencies
       run: npm ci
@@ -41,12 +41,12 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: restore dist cache
+      - name: restore server cache
         id: cache-dist-restore
         uses: actions/cache/restore@v3
         with:
-          path: dist
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-dist
+          path: server
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-server
       - name: deploy-to-ec2
         env:
           PRIVATE_KEY: ${{ secrets.EC2_DEV_CERTIFICATE }}
@@ -55,7 +55,7 @@ jobs:
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} "rm -rf /var/www/websocket/*"
-          scp -o StrictHostKeyChecking=no -i private_key -r local_directory_or_file ${USERNAME}@${HOSTNAME}:/var/www/websocket
+          scp -o StrictHostKeyChecking=no -i private_key -r server ${USERNAME}@${HOSTNAME}:/var/www/websocket
 
           
    
