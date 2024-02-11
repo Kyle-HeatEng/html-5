@@ -55,7 +55,8 @@ jobs:
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} "rm -rf /var/www/websocket/*"
-          scp -o StrictHostKeyChecking=no -i private_key -r server ${USERNAME}@${HOSTNAME}:/var/www/websocket
+          scp -o StrictHostKeyChecking=no -i private_key -r server/* ${USERNAME}@${HOSTNAME}:/var/www/websocket
+          ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} 'bash -i -c "pm2 restart websocket"'
 
           
    
