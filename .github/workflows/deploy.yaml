@@ -29,14 +29,12 @@ jobs:
     - name: Cache build output
       uses: actions/cache@v3
       with:
-        path: dist
+        path: server
         key: cache-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-dist
-
-    - name: Navigate to the server directory
-      run: cd server
 
     - name: Install NPM dependencies
       run: npm ci
+      working-directory: server
 
   deploy:
     if: "! github.event.pull_request.draft"
