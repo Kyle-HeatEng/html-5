@@ -21,8 +21,15 @@ export default function Splash() {
           <div key={i}>{message}</div>
         ))}
       </div>
-      <input onChange={handleChange} value={message} />
-      <button onClick={sendMessage} className="px-4 py-2 bg-green-700 text-amber-900 text-2xl">
+      <input
+        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        onChange={handleChange}
+        value={message}
+      />
+      <button
+        onClick={sendMessage}
+        className="px-4 py-2 bg-green-700 text-amber-900 text-2xl"
+      >
         send
       </button>
     </main>

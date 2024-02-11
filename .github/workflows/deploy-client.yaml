@@ -1,0 +1,62 @@
+name: deploy main client
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'client/**'
+
+jobs:
+    build:
+      if: "! github.event.pull_request.draft"
+      runs-on: ubuntu-latest
+
+      steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v3
+
+      - name: Setup nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+    
+      - name: Cache build output
+        uses: actions/cache@v3
+        with:
+            path: client
+            key: cache-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-client
+      
+      - name: Install dependencies
+        run: npm ci
+        working-directory: client
+    
+      - name: Build Next app
+        run: npm run build
+        working-directory: client
+
+    deploy:
+        needs: build
+        if: "! github.event.pull_request.draft"
+        runs-on: ubuntu-latest
+        steps:
+          - name: restore client cache
+            id: cache-client-restore
+            uses: actions/cache/restore@v3
+            with:
+              path: client
+              key: cache-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-client
+        
+          - name: deploy-to-ec2
+            env: 
+              PRIVATE_KEY: ${{ secrets.EC2_DEV_CERTIFICATE }}
+              HOSTNAME: ${{ vars.EC2_DEV_HOSTNAME }}
+              USERNAME: ${{ vars.EC2_DEV_USERNAME }}
+            run: |
+              echo "$PRIVATE_KEY" > private_key.pem
+              ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} "rm -rf /var/www/client/*" 
+              scp -o StrictHostKeyChecking=no -i private_key -r client/node_modules ${USERNAME}@${HOSTNAME}:/var/www/client
+              scp -o StrictHostKeyChecking=no -i private_key -r client/.next ${USERNAME}@${HOSTNAME}:/var/www/client
+              scp -o StrictHostKeyChecking=no -i private_key -r client/package.json ${USERNAME}@${HOSTNAME}:/var/www/client  
+              scp -o StrictHostKeyChecking=no -i private_key -r client/next.config.js ${USERNAME}@${HOSTNAME}:/var/www/client
+              ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} 'bash -i -c "pm2 restart nextjs"'   

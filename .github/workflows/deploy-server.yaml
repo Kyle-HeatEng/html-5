@@ -1,4 +1,4 @@
-name: deploy main
+name: deploy main server
 
 # Trigger the workflow on push events to the master branch.
 on: 
@@ -11,8 +11,7 @@ on:
 # Define jobs to be run.
 jobs:
   build:
-    # Only run this job if the event is not from a draft pull request.
-    if: "!github.event.pull_request.draft"
+    if: "! github.event.pull_request.draft"
     # Specify the type of runner that the job will run on.
     runs-on: ubuntu-latest
 
