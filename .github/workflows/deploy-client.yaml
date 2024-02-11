@@ -53,7 +53,7 @@ jobs:
               HOSTNAME: ${{ vars.EC2_DEV_HOSTNAME }}
               USERNAME: ${{ vars.EC2_DEV_USERNAME }}
             run: |
-              echo "$PRIVATE_KEY" > private_key.pem
+              echo "$PRIVATE_KEY" > private_key.pem && chmod 600 private_key
               ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} "rm -rf /var/www/client/*" 
               scp -o StrictHostKeyChecking=no -i private_key -r client/node_modules ${USERNAME}@${HOSTNAME}:/var/www/client
               scp -o StrictHostKeyChecking=no -i private_key -r client/.next ${USERNAME}@${HOSTNAME}:/var/www/client
