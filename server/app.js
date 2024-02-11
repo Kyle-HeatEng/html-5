@@ -1,33 +1,35 @@
 const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
+const cors = require("cors");
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server, {
+  cors: {
+    origin: "*", // Adjust according to your security requirements
+    methods: ["GET", "POST"],
+  },
+});
 
 // Store player positions
 let playerPositions = {};
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
-});
-
 io.on("connection", (socket) => {
   console.log("A user connected: " + socket.id);
 
-  // Initialize player position
-  playerPositions[socket.id] = { x: 50, y: 50 }; // Default starting position
+  // Listen for "message" events from clients
+  socket.on("message", (message) => {
+    // Broadcast the received message to all clients
+    io.emit("message", message);
+  });
 
-  // Send existing players to the newly connected player
-  socket.emit("existingPlayers", playerPositions);
-
-  // Update player position and broadcast to all clients
-  socket.on("move", (data) => {
-    if (playerPositions[socket.id]) {
-      playerPositions[socket.id] = data; // Update player position
-      io.emit("playerPositions", playerPositions); // Broadcast all positions
-    }
+  // Listen for position updates from clients
+  socket.on("updatePosition", (position) => {
+    // Update the position for the current player
+    playerPositions[socket.id] = position;
+    // Broadcast the updated positions to all clients
+    io.emit("playerPositions", playerPositions);
   });
 
   socket.on("disconnect", () => {
@@ -41,3 +43,5 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+//https://websocket.ai-ticulate.uk
