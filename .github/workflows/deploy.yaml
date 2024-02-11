@@ -5,8 +5,8 @@ on:
   push:
     branches:
       - ci-testing
-    paths:
-      - 'server/**'
+    # paths:
+    #   - 'server/**'
 
 # Define jobs to be run.
 jobs:
