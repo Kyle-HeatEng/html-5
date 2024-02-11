@@ -4,9 +4,9 @@ name: deploy main
 on: 
   push:
     branches:
-      - ci-testing
-    # paths:
-    #   - 'server/**'
+      - main
+    paths:
+      - 'server/**'
 
 # Define jobs to be run.
 jobs:
