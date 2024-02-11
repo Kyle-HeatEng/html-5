@@ -4,7 +4,9 @@ name: deploy main
 on: 
   push:
     branches:
-    #- master
+      - ci-testing
+    paths:
+      - 'server/**'
 
 # Define jobs to be run.
 jobs:
@@ -36,10 +38,6 @@ jobs:
     - name: Install NPM dependencies
       run: npm ci
 
-    # Add a step to build your application, if applicable.
-    - name: Build the application
-      run: npm run build
-
   deploy:
     if: "! github.event.pull_request.draft"
     needs: build
@@ -58,8 +56,8 @@ jobs:
           USERNAME: ${{ vars.EC2_DEV_USERNAME }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} rm -rf /var/www/websocket-html-canvas
-          scp -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME}:/var/www/websocket-html-canvas
+          ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} rm -rf /var/www/websocket
+          scp -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME}:/var/www/websocket
           
    
 
