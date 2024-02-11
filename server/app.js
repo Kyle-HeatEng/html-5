@@ -15,6 +15,8 @@ const io = socketIo(server, {
 // Store player positions
 let playerPositions = {};
 
+console.log('hello ci')
+
 io.on("connection", (socket) => {
   console.log("A user connected: " + socket.id);
 

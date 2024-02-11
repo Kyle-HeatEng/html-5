@@ -4,7 +4,9 @@ name: deploy main
 on: 
   push:
     branches:
-    #- master
+      - main
+    paths:
+      - 'server/**'
 
 # Define jobs to be run.
 jobs:
@@ -27,30 +29,24 @@ jobs:
     - name: Cache build output
       uses: actions/cache@v3
       with:
-        path: dist
-        key: cache-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-dist
-
-    - name: Navigate to the server directory
-      run: cd server
+        path: server
+        key: cache-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-server
 
     - name: Install NPM dependencies
       run: npm ci
-
-    # Add a step to build your application, if applicable.
-    - name: Build the application
-      run: npm run build
+      working-directory: server
 
   deploy:
     if: "! github.event.pull_request.draft"
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: restore dist cache
+      - name: restore server cache
         id: cache-dist-restore
         uses: actions/cache/restore@v3
         with:
-          path: dist
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-dist
+          path: server
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-server
       - name: deploy-to-ec2
         env:
           PRIVATE_KEY: ${{ secrets.EC2_DEV_CERTIFICATE }}
@@ -58,8 +54,10 @@ jobs:
           USERNAME: ${{ vars.EC2_DEV_USERNAME }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} rm -rf /var/www/websocket-html-canvas
-          scp -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME}:/var/www/websocket-html-canvas
+          ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} "rm -rf /var/www/websocket/*"
+          scp -o StrictHostKeyChecking=no -i private_key -r server/* ${USERNAME}@${HOSTNAME}:/var/www/websocket
+          ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} 'bash -i -c "pm2 restart websocket"'
+
           
    
 
