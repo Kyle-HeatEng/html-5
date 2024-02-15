@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  nextjs-app:
+    build:
+      context: . # Assuming the docker-compose.yml is in the root directory
+      dockerfile: infrastructure/dockerFile/next.js.dockerFile
+    volumes:
+      - ./client:/app # Mount the Next.js app directory to /app inside the container
+    ports:
+      - "3000:3000" # Expose port 3000 for the Next.js app
+    environment:
+      - NODE_ENV=development # Set environment variables as needed
